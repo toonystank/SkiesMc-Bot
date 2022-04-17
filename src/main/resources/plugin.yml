@@ -1,0 +1,9 @@
+name: SkiesMC-BOT
+version: '${project.version}'
+main: com.taggernation.skiesmcbot.SkiesMCBOT
+api-version: 1.18
+authors: [ Edward ]
+depend:
+  - 'TaggerNationLib'
+soft-depend: [Duels]
+

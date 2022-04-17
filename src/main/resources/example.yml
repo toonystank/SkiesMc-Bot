@@ -1,0 +1,27 @@
+command: !exmaple
+title: Example Embed from custom bot
+author:
+  name: Example
+  url: https://media.discordapp.net/attachments/958642856246009877/960509399674286220/server-icon.png
+description:
+  - This is an example embed.
+  - This is a multi-line embed description.
+  - This is the third line of the embed description.
+color: #ff0000
+fields:
+  - name: Field 1
+    value: This is a field.
+    inline: true
+  - name: Field 2
+    value: This is another field.
+    inline: true
+  - name: Field 3
+    value: This is the third field.
+    inline: false
+  - name: Field 4
+    value: This is the fourth field.
+    inline: false
+footer:
+  text: This is the footer text.
+  icon_url: https://media.discordapp.net/attachments/958642856246009877/960509399674286220/server-icon.png
+thumbnail: null
