@@ -2,11 +2,8 @@ package com.taggernation.skiesmcbot.commands;
 
 import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.tasks.LoopTask;
-import jdk.internal.org.jline.utils.Status;
-import me.realized.duels.api.Duels;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +11,10 @@ import java.io.IOException;
 
 public class Commands extends ListenerAdapter {
 
-    private LoopTask loopTask;
+    private final LoopTask loopTask;
+    public Commands(LoopTask loopTask) {
+        this.loopTask = loopTask;
+    }
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;

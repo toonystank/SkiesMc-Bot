@@ -13,6 +13,7 @@ import java.util.Objects;
 public class Say {
 
     public void sayCommand(@NotNull MessageReceivedEvent event) {
+        if (!(event.getChannel() instanceof TextChannel)) return;
         if (!Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_CHANNEL)) return;
         event.getMessage().delete().queue();
         EmbedBuilder embed = new EmbedBuilder();

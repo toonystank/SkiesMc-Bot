@@ -1,6 +1,7 @@
-package com.taggernation.skiesmcbot.embeds;
+package com.taggernation.skiesmcbot.utils;
 
 import com.taggernation.skiesmcbot.SkiesMCBOT;
+import com.taggernation.skiesmcbot.commands.EmbedCommands;
 import com.taggernation.skiesmcbot.commands.HelpEmbed;
 import com.taggernation.skiesmcbot.tasks.LoopTask;
 import com.taggernation.taggernationlib.config.Config;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class EmbedFromYML {
@@ -32,13 +34,11 @@ public class EmbedFromYML {
     private final EmbedBuilder embedBuilder = new EmbedBuilder();
     private MessageEmbed messageEmbed;
     private final JDA jda;
-    private LoopTask loopTask;
-    private Config config;
+    private final Config config;
 
     public EmbedFromYML(Config config, JDA jda, LoopTask loopTask) {
         this.jda = jda;
         this.config = config;
-        this.loopTask = loopTask;
         this.command = config.getString("command");
         this.title = config.getString("title");
         this.author = config.getString("author");
@@ -47,7 +47,7 @@ public class EmbedFromYML {
         this.authorURL = config.getString("author.url");
         this.description = config.getStringList("description");
         this.color = config.getString("color");
-        this.fields = config.getConfig().getConfigurationSection("fields").getKeys(false);
+        this.fields = Objects.requireNonNull(config.getConfig().getConfigurationSection("fields")).getKeys(false);
         this.footer = config.getString("footer");
         this.footerText = config.getString("footer.text");
         this.footerIconURL = config.getString("footer.icon");
@@ -77,9 +77,7 @@ public class EmbedFromYML {
             embedBuilder.setColor(Integer.parseInt(color));
         }
         if (fields != null) {
-            fields.forEach(field -> {
-                embedBuilder.addField(config.getString("fields." + field + ".name"), config.getString("fields." + field + ".value"), config.getBoolean( "fields." + field + ".inline"));
-                    });
+            fields.forEach(field -> embedBuilder.addField(config.getString("fields." + field + ".name"), config.getString("fields." + field + ".value"), config.getBoolean( "fields." + field + ".inline")));
         }else {
             SkiesMCBOT.getInstance().getLogger().info("No fields found");
         }
@@ -91,7 +89,7 @@ public class EmbedFromYML {
         }
         messageEmbed = embedBuilder.build();
         if (command != null) {
-            jda.addEventListener(new Commands(this));
+            jda.addEventListener(new EmbedCommands(this));
             SkiesMCBOT.getInstance().getLogger().info("Registered command: " + command);
             if (!HelpEmbed.getCommands().contains(command)) {
                 HelpEmbed.addCommand(command);

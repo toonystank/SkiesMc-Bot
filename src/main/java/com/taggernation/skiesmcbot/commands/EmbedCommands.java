@@ -1,13 +1,14 @@
-package com.taggernation.skiesmcbot.embeds;
+package com.taggernation.skiesmcbot.commands;
 
+import com.taggernation.skiesmcbot.utils.EmbedFromYML;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 
-public class Commands extends ListenerAdapter {
+public class EmbedCommands extends ListenerAdapter {
 
     private final EmbedFromYML embed;
-    public Commands(EmbedFromYML embed) {
+    public EmbedCommands(EmbedFromYML embed) {
         this.embed = embed;
     }
     @Override
