@@ -41,13 +41,13 @@ public class Test extends ListenerAdapter {
         int positionX = (image.getWidth() - metrics.stringWidth(text)) / 10;
         int positionY = (image.getHeight() - metrics.getHeight()) / 4 + metrics.getAscent();
         imageGraphics.drawString(attributedText.getIterator(), positionX, positionY);
-        File outputfile = new File("test.png");
+        File outfile = new File("test.png");
         try {
-            ImageIO.write(image, "png", outputfile);
+            ImageIO.write(image, "png", outfile);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        event.getChannel().sendMessage(attributedText.toString()).addFile(outputfile).queue();
+        event.getChannel().sendMessage(attributedText.toString()).addFile(outfile).queue();
 
     }
 }
