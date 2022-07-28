@@ -32,7 +32,9 @@ public class Say {
         if (channel == null) {
             channel = event.getTextChannel();
         }
-
+        if (!event.getMessage().getAttachments().isEmpty()) {
+            embed.setImage(event.getMessage().getAttachments().get(0).getUrl());
+        }
         embed.setDescription(message);
         channel.sendMessageEmbeds(embed.build()).queue();
     }

@@ -1,4 +1,7 @@
-command: !exmaple
+trigger:
+  event:
+    type: COMMAND
+    command: "!example"
 title: Example Embed from custom bot
 author:
   name: Example
@@ -8,7 +11,8 @@ description:
   - This is a multi-line embed description.
   - This is the third line of the embed description.
 color: #ff0000
-fields:
+fields: true
+fields-data:
   - name: Field 1
     value: This is a field.
     inline: true
@@ -24,4 +28,5 @@ fields:
 footer:
   text: This is the footer text.
   icon_url: https://media.discordapp.net/attachments/958642856246009877/960509399674286220/server-icon.png
-thumbnail: null
+thumbnail: URL
+thumbnailurl:

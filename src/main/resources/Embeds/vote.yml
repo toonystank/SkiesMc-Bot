@@ -1,0 +1,36 @@
+trigger:
+  event:
+    type: COMMAND
+    command: "!vote"
+title: "Vote Links"
+author:
+  name: {user}
+  url: null
+  icon: {useravatar}
+attachments: null
+description:
+  - Vote for our server on given links
+  - Recieve `Elixir` and other rewards for voting.
+fields: true
+fields-data:
+  1:
+    name: ":one: Topg"
+    value: ":small_blue_diamond: https://topg.org/minecraft-servers/server-641657"
+    inline: false
+  2:
+    name: ":two: Topminecraftservers"
+    value: ":small_blue_diamond: http://topminecraftservers.org/vote/26193"
+    inline: false
+  3:
+    name: ":three: Planetminecraft"
+    value: ":small_blue_diamond: https://planetminecraft.com/server/skiesmc/"
+    inline: false
+  4:
+    name: ":four: Minecraft-mp"
+    value: ":small_blue_diamond: https://minecraft-mp.com/server-s301979"
+    inline: false
+footer:
+  text: SkiesMC
+  icon: "https://media.discordapp.net/attachments/963831500573405224/1002271437425492058/Skies-MC-01.png?width=497&height=497"
+thumbnail: null
+thumbnailurl: nul

@@ -1,4 +1,18 @@
 token: 00000000000000
-suggestion_channel: 00000000
+suggestion:
+  channel: 00000000000000
+  thumbnail: NONE
+announcement:
+  channel: 00000000
+  thumbnail: NONE # NONE means no thumbnail will be sent
+Logs:
+  tpschannel: 0000
+  memberjoin: 0000
+  memberleave: 0000
+  tpswarnchannel: 00000
+  banchannel: 0000000
 embeds:
-  - example.yml
+  - vote.yml
+  - join.yml
+  - leave.yml
+data:

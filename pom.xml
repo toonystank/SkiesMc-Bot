@@ -65,9 +65,19 @@
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
         </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.1</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
@@ -86,16 +96,34 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.taggernation</groupId>
-            <artifactId>TaggerNationLib</artifactId>
-            <version>pre-8</version>
+            <groupId>com.GitHub.N0RSKA</groupId>
+            <artifactId>UltimateAutoRestartAPI</artifactId>
+            <version>51</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.Realizedd.Duels</groupId>
+            <groupId>com.GitHub.Realizedd.Duels</groupId>
             <artifactId>duels-api</artifactId>
             <version>3.5.1</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>club.minnced</groupId>
+            <artifactId>discord-webhooks</artifactId>
+            <version>0.8.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.taggernation</groupId>
+            <artifactId>taggernationlib</artifactId>
+            <version>1.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.Zrips</groupId>
+            <artifactId>CMI-API</artifactId>
+            <version>8.7.8.2</version>
+            <scope>system</scope>
+            <systemPath>D:/CMIAPI/CMIAPI8.7.8.2.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

@@ -30,7 +30,7 @@ public class HelpEmbed {
             formattedCommands.add("`"+ i + "`) " + command);
         }
         embedBuilder.addField("`User commands`", String.join("\n", formattedCommands), false);
-        embedBuilder.addField("`Admin commands`", "`1` ) " + "!say [ChannelID] <Message> - _Send message as Bot_"+ "\n`2` ) " + "!looptext [channelID] <message> - _Loop the provided message as bot_" + "\n`3` ) "+ "!test [text] - _Test command for upcoming features_", false);
+        embedBuilder.addField("`Admin commands`", "`1` ) " + "!say [ChannelID] <Message> - _Send message as Bot_"+ "\n`2` ) " + "!looptext [channelID] <message> - _Loop the provided message as bot_" + "\n`3` ) "+ "!test [text] - _Test command for upcoming features_" + "\n`4` ) !tpsaware `<start|stop|status|setinterval> [interval]` - _Stops TPS log for 1 hour_", false);
         embedBuilder.setAuthor(event.getAuthor().getName(), null, event.getAuthor().getAvatarUrl());
         embedBuilder.setFooter("Command Options [] = optional, <> = required", null);
         embedBuilder.setTimestamp(new Date().toInstant());

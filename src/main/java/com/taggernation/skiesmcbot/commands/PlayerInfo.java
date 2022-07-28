@@ -2,8 +2,8 @@ package com.taggernation.skiesmcbot.commands;
 
 import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.utils.DefaultEmbed;
-import com.taggernation.taggernationlib.config.Config;
-import com.taggernation.taggernationlib.placeholder.Placeholder;
+import com.taggernation.skiesmcbot.utils.Placeholder;
+import com.taggernation.taggernationlib.config.ConfigManager;
 import me.realized.duels.api.Duels;
 import me.realized.duels.api.user.User;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerInfo {
@@ -26,7 +27,7 @@ public class PlayerInfo {
         this.event = event;
     }
 
-    Config playerData = SkiesMCBOT.getInstance().getPlayerData();
+    ConfigManager playerData = SkiesMCBOT.getInstance().getPlayerData();
     Placeholder placeholder = new Placeholder();
 
     public void sendPlayerInfo() throws IOException, InvalidConfigurationException {
@@ -53,13 +54,17 @@ public class PlayerInfo {
             embedBuilder.addField("K/D Ratio ", formatFields(DataType.KDR,player) + " ", true);
             embedBuilder.addField("Job points ", formatFields(DataType.JOBS_POINTS,player), true);
             embedBuilder.addField("Claim blocks ", formatFields(DataType.CLAIM_BLOCKS,player), true);
-            if (duelsData != null) {
+            if (Bukkit.getPlayer(player) != null) {
+                int playerPing = Objects.requireNonNull(Bukkit.getPlayer(player)).getPing();
+                embedBuilder.addField("Ping", playerPing + "ms", true);
+            }
+/*            if (duelsData != null) {
                 embedBuilder.addField(":crossed_swords: **Duels statistics**", "Duels in-game statistics", false);
                 embedBuilder.addField("Wins ", duelsData.getWins() + "", true);
                 embedBuilder.addField("Losses ", duelsData.getLosses() + "", true);
             }else {
                 embedBuilder.addField(":crossed_swords: **Duels statistics**", "Player dose not have any duels statistics", true);
-            }
+            }*/
             embedBuilder.setThumbnail("https://crafatar.com/renders/body/" + formatFields(DataType.UUID,player) + "?overlay");
 
         }else {

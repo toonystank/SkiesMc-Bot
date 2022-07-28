@@ -9,9 +9,10 @@ import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 public class DuelStatus {
 
-    private Duels duels;
+    private final Duels duels;
     public DuelStatus(Duels duels) {
         this.duels = duels;
     }

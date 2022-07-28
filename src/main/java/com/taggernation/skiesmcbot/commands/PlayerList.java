@@ -22,7 +22,7 @@ public class PlayerList {
             int i = 0;
             for (Player s : Bukkit.getOnlinePlayers()) {
                 i++;
-                players.add("**" + i + "**) "+ "`" + s.getName() + "`");
+                players.add("**" + i + "**) "+ "`" + s.getName() + "`" + " - " + s.getPing() + "ms");
             }
         }
         embed.setDescription(String.join("\n", players));

@@ -1,0 +1,23 @@
+trigger:
+  event:
+    type: MESSAGE
+    message: "What is the ip"
+title: "**AUTOBOT**"
+author:
+  name: null
+  url: null
+  icon: null
+attachments: null
+description:
+  -
+fields: true
+fields-data:
+  1:
+    name: "INFOMATION"
+    value: "Server ip is `play.skiesmc.com`"
+    inline: false
+footer:
+  text: SkiesMC
+  icon: "https://media.discordapp.net/attachments/963831500573405224/1002271437425492058/Skies-MC-01.png?width=497&height=497"
+thumbnail: null
+thumbnailurl: null

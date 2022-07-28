@@ -1,0 +1,23 @@
+trigger:
+  event:
+    type: JOIN
+    channel: "877443938640871466"
+title: "`{user}` Joined the server"
+author:
+  name: {user}
+  url: "https://media.discordapp.net/attachments/958642856246009877/960509399674286220/server-icon.png"
+  icon: {useravatar}
+description:
+  - User joined the server
+  - This is a multi-line embed description.
+  - This is the third line of the embed description.
+fields: false
+fields-data:
+  - name: Field 1
+    value: This is a field.
+    inline: true
+footer:
+  text: SkiesMC
+  icon: "https://media.discordapp.net/attachments/958642856246009877/960509399674286220/server-icon.png"
+thumbnail: null
+thumbnailurl: null

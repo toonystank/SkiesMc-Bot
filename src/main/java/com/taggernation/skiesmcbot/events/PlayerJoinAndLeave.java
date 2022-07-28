@@ -1,7 +1,7 @@
 package com.taggernation.skiesmcbot.events;
 
-import com.taggernation.taggernationlib.config.Config;
-import com.taggernation.taggernationlib.placeholder.Placeholder;
+import com.taggernation.skiesmcbot.utils.Placeholder;
+import com.taggernation.taggernationlib.config.ConfigManager;
 import org.bukkit.Statistic;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -14,9 +14,9 @@ import java.util.Locale;
 
 public class PlayerJoinAndLeave implements Listener {
 
-    private final Config playerData;
+    private final ConfigManager playerData;
     private final Placeholder placeholder;
-    public PlayerJoinAndLeave(Config playerData, Placeholder placeholder) {
+    public PlayerJoinAndLeave(ConfigManager playerData, Placeholder placeholder) {
         this.playerData = playerData;
         this.placeholder = placeholder;
     }
@@ -39,7 +39,11 @@ public class PlayerJoinAndLeave implements Listener {
         playerDataConfig.set("players." + playerName + ".balance", placeholder.replace("%cmi_user_balance_formatted%", player));
         playerDataConfig.set("players." + playerName + ".kills", player.getStatistic(Statistic.PLAYER_KILLS));
         playerDataConfig.set("players." + playerName + ".deaths", player.getStatistic(Statistic.DEATHS));
-        playerDataConfig.set("players." + playerName + ".kdr", player.getStatistic(Statistic.DEATHS) == 0 ? player.getStatistic(Statistic.PLAYER_KILLS) : player.getStatistic(Statistic.PLAYER_KILLS) / player.getStatistic(Statistic.DEATHS));
+        if ((player.getStatistic(Statistic.DEATHS) == 0) || (player.getStatistic(Statistic.PLAYER_KILLS) == 0)) {
+            playerDataConfig.set("players." + playerName + ".kdr", 0);
+        }else {
+            playerDataConfig.set("players." + playerName + ".kdr", (double) player.getStatistic(Statistic.PLAYER_KILLS) / (double) player.getStatistic(Statistic.DEATHS));
+        }
         playerDataConfig.set("players." + playerName + ".jobs_points", placeholder.replace("%jobsr_user_points_fixed%", player));
         playerDataConfig.set("players." + playerName + ".claim_blocks", placeholder.replace("%griefprevention_remainingclaims_formatted%", player));
         playerData.save();
