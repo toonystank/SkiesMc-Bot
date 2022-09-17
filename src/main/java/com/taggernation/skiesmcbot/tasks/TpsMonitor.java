@@ -2,12 +2,15 @@ package com.taggernation.skiesmcbot.tasks;
 
 import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.taggernationlib.config.ConfigManager;
+import io.papermc.lib.PaperLib;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.requests.RestAction;
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -15,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
-public class TpsMonitor extends BukkitRunnable {
+public class TpsMonitor extends BukkitRunnable{
 
     private static final SkiesMCBOT plugin = SkiesMCBOT.getInstance();
     private final JDA jda;
@@ -140,7 +143,7 @@ public class TpsMonitor extends BukkitRunnable {
         this.interval = interval;
     }
 
-    public void detailedTpsReport(MessageReceivedEvent event) {
+    public void detailedTpsReport(MessageChannel Channel) {
         EmbedBuilder embedBuilder = new EmbedBuilder().setTimestamp(new Date().toInstant());
         String minerDetails = "\n**TPS** \n`"
                 + (int) Math.round(TPS[0])
@@ -160,7 +163,7 @@ public class TpsMonitor extends BukkitRunnable {
         embedBuilder.setTitle(":airplane_small: **TPS Details**");
         embedBuilder.setColor(0x2F3136);
         embedBuilder.setDescription(minerDetails + advancedDetails);
-        event.getChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+        Channel.sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
 }

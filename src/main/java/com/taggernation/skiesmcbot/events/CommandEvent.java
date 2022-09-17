@@ -5,6 +5,7 @@ import com.taggernation.skiesmcbot.commands.*;
 import com.taggernation.skiesmcbot.tasks.LoopTask;
 import com.taggernation.skiesmcbot.tasks.TpsMonitor;
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -25,62 +26,53 @@ public class CommandEvent {
 
     }
 
-    public void onCommand(@NotNull MessageReceivedEvent event) {
-        Bukkit.getLogger().info(event.getMessage().getContentRaw());
-        switch (event.getMessage().getContentRaw().toLowerCase().split(" ")[0]) {
-            case "!tps":
-                if (event.getAuthor().isBot()) return;
+    public void onCommand(@NotNull SlashCommandInteractionEvent event) {
+        switch (event.getName()) {
+            case "tps":
                 if (!Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_CHANNEL)) return;
-                if (event.getMessage().getContentRaw().split(" ").length > 1) {
-                    switch (event.getMessage().getContentRaw().split(" ")[1]) {
-                        case "start":
-                            tpsMonitor.tpsAware(true);
-                            event.getChannel().sendMessage("Tps monitoring started.").queue();
-                            break;
-                        case "stop":
-                            tpsMonitor.tpsAware(false);
-                            event.getChannel().sendMessage("Tps monitoring stopped.").queue();
-                            break;
-                        case "status":
-                            tpsMonitor.detailedTpsReport(event);
-                            break;
-                        case "setinterval":
-                            if (event.getMessage().getContentRaw().split(" ").length > 2) {
-                                tpsMonitor.setInterval(Integer.parseInt(event.getMessage().getContentRaw().split(" ")[2]));
-                                event.getChannel().sendMessage("Tps monitoring interval set to " + event.getMessage().getContentRaw().split(" ")[2] + " ticks.").queue();
-                                return;
-                            }
-                            return;
-                    }
+                if (Objects.requireNonNull(event.getOption("start")).getAsBoolean()) {
+                    tpsMonitor.tpsAware(true);
+                    event.getChannel().sendMessage("Tps monitoring started.").queue();
                 }
-                return;
-            case "!looptext":
+                if (Objects.requireNonNull(event.getOption("stop")).getAsBoolean()) {
+                    tpsMonitor.tpsAware(false);
+                    event.getChannel().sendMessage("Tps monitoring stopped.").queue();
+                }
+                if (Objects.requireNonNull(event.getOption("status")).getAsBoolean())
+                    tpsMonitor.detailedTpsReport(event.getChannel());
+                if (event.getOption("setinterval") != null) {
+                    tpsMonitor.setInterval(Objects.requireNonNull(event.getOption("setinterval")).getAsInt());
+                    event.getChannel().sendMessage("Tps monitoring interval set to " + Objects.requireNonNull(event.getOption("setinterval")).getAsInt() + " ticks.").queue();
+
+                }
+            case "looptext":
                 new LoopText(loopTask).loopCommand(event);
                 break;
-            case "!say":
-                new Say().sayCommand(event);
-                break;
-            case "!help":
+            case "help":
                 event.getChannel().sendMessageEmbeds(helpEmbed.getEmbed(event)).queue();
-                break;
-            case "!profile":
+            case "playerinfo":
+            case "profile":
                 try {
-                    new PlayerInfo(SkiesMCBOT.duels, event).sendPlayerInfo();
+                    event.deferReply().queue();
+                    new PlayerInfo(event).sendPlayerInfo();
                 } catch (IOException | InvalidConfigurationException e) {
                     e.printStackTrace();
                 }
-                break;
-            case "!leaderboard":
-            case "!status":
-            case "!top":
-                leaderBoard(event);
-                break;
-            case "!playerlist":
-            case "!players":
-            case "!list":
+            case "playerlist":
+            case "players":
+            case "list":
                 new PlayerList().sendPlayerList(event);
             default:
                 break;
+        }
+    }
+    public void onCommand(@NotNull MessageReceivedEvent event) {
+        String[] args = event.getMessage().getContentRaw().split(" ");
+        switch (args[0]) {
+            case "say" -> new Say().sayCommand(event);
+            case "leaderboard", "status", "top" -> leaderBoard(event);
+            default -> {
+            }
         }
     }
     public void leaderBoard( MessageReceivedEvent event) {

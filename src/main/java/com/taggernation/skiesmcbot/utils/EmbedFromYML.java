@@ -3,43 +3,45 @@ package com.taggernation.skiesmcbot.utils;
 import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.commands.HelpEmbed;
 import com.taggernation.taggernationlib.config.ConfigManager;
+import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.guild.GenericGuildEvent;
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Nullable;
 
-import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@Getter
 public class EmbedFromYML {
 
     private String command;
+    private String commandDescription;
     private String channel;
-    private final TriggerMode type;
+    private TriggerMode type;
     private String message;
 
-    private final String title;
-    private final List<String> description;
-    private Set<String> fieldsData = null;
+    private String title;
+    private List<String> description;
+    private Set<String> fieldsData = new HashSet<>();
     private ThumbnailType thumbnail = null;
-    private final String authorName;
-    private final String authorIconURL;
-    private final String authorURL;
-    private final String attachmentURL;
+    private String authorName;
+    private String authorIconURL;
+    private String authorURL;
+    private String attachmentURL;
 
-    private final String footerText;
-    private final String footerIconURL;
+    private String footerText;
+    private String footerIconURL;
 
-    private final EmbedBuilder embedBuilder = new EmbedBuilder();
+    private EmbedBuilder embedBuilder = new EmbedBuilder();
     private MessageEmbed messageEmbed;
     private final JDA jda;
     private final ConfigManager config;
@@ -47,43 +49,7 @@ public class EmbedFromYML {
     public EmbedFromYML(ConfigManager config, JDA jda) {
         this.jda = jda;
         this.config = config;
-
-        type = TriggerMode.valueOf(config.getString("trigger.event.type"));
-        Bukkit.getLogger().info("Trigger type: " + type.name());
-        switch (type) {
-            case COMMAND:
-                this.command = config.getString("trigger.event.command");
-                Bukkit.getLogger().info("Trigger command: " + command);
-                break;
-            case LEAVE:
-            case JOIN:
-                this.channel = config.getString("trigger.event.channel");
-                Bukkit.getLogger().info("Trigger channel: " + channel);
-                break;
-            case MESSAGE:
-                this.message = config.getString("trigger.event.message").toLowerCase(Locale.ROOT);
-                Bukkit.getLogger().info("Trigger message: " + message);
-                break;
-        }
-
-        this.title = config.getString("title");
-        this.authorName = config.getString("author.name");
-        this.authorIconURL = config.getString("author.icon");
-        this.authorURL = config.getString("author.url");
-        this.description = config.getStringList("description");
-        this.attachmentURL = config.getString("attachment");
-
-        boolean fields = config.getBoolean("fields");
-        if (fields) {
-            this.fieldsData = Objects.requireNonNull(config.getConfig().getConfigurationSection("fields-data")).getKeys(false);
-        }
-
-        this.footerText = config.getString("footer.text");
-        this.footerIconURL = config.getString("footer.icon");
-        try {
-            this.thumbnail = ThumbnailType.valueOf(config.getString("thumbnail"));
-        }catch (IllegalArgumentException | NullPointerException ignored) {
-        }
+        initialize();
         Bukkit.getLogger().info("EmbedFromYaml loaded");
     }
 
@@ -150,8 +116,11 @@ public class EmbedFromYML {
             embedBuilder.setDescription(String.join("\n", formatDescription(member)));
         }
         embedBuilder.setColor(0x2F3136);
-        if (fieldsData != null) {
-            fieldsData.forEach(field -> embedBuilder.addField(formatMessage(config.getString("fields-data." + field + ".name"), member), formatMessage(config.getString("fields-data." + field + ".value"),member), config.getBoolean( "fields-data." + field + ".inline")));
+        if (!fieldsData.isEmpty()) {
+            fieldsData.forEach(field -> embedBuilder.addField(
+                    formatMessage(config.getString("fields-data." + field + ".name"), member)
+                    ,formatMessage(config.getString("fields-data." + field + ".value"),member)
+                    ,config.getBoolean( "fields-data." + field + ".inline")));
         }else {
             SkiesMCBOT.getInstance().getLogger().info("No fields found");
         }
@@ -167,6 +136,42 @@ public class EmbedFromYML {
         }
         messageEmbed = embedBuilder.build();
         return this;
+    }
+    public void demolish() {
+        embedBuilder.clear();
+        embedBuilder = new EmbedBuilder();
+        initialize();
+    }
+    public void initialize() {
+        this.type = TriggerMode.valueOf(config.getString("trigger.event.type"));
+        switch (type) {
+            case COMMAND -> {
+                this.command = config.getString("trigger.event.command");
+                this.commandDescription = config.getString("trigger.event.description");
+                jda.upsertCommand(this.command, this.commandDescription).queue();
+            }
+            case LEAVE, JOIN -> this.channel = config.getString("trigger.event.channel");
+            case MESSAGE -> this.message = config.getString("trigger.event.message").toLowerCase(Locale.ROOT);
+        }
+
+        this.title = config.getString("title");
+        this.authorName = config.getString("author.name");
+        this.authorIconURL = config.getString("author.icon");
+        this.authorURL = config.getString("author.url");
+        this.description = config.getStringList("description");
+        this.attachmentURL = config.getString("attachment");
+
+        boolean fields = config.getBoolean("fields");
+        if (fields) {
+            this.fieldsData = Objects.requireNonNull(config.getConfig().getConfigurationSection("fields-data")).getKeys(false);
+        }
+
+        this.footerText = config.getString("footer.text");
+        this.footerIconURL = config.getString("footer.icon");
+        try {
+            this.thumbnail = ThumbnailType.valueOf(config.getString("thumbnail"));
+        }catch (IllegalArgumentException | NullPointerException ignored) {
+        }
     }
     public EmbedFromYML registerEvents() {
         if (type == TriggerMode.COMMAND) {
@@ -207,11 +212,8 @@ public class EmbedFromYML {
         if (member == null) {
             return description;
         }
-        String[] desc = new String[description.size()];
-        for (int i = 0; i < description.size(); i++) {
-            desc[i] = formatMessage(description.get(i), member);
-        }
-        return Arrays.asList(desc);
+        this.description = description.stream().map(s -> formatMessage(s, member)).collect(Collectors.toList());
+        return this.description;
     }
     public String formatMessage(String message, @Nullable Member member) {
         if (message == null) return null;
@@ -228,6 +230,7 @@ public class EmbedFromYML {
         TextChannel textChannel = getJDA().getTextChannelById(getChannel());
         if (textChannel != null) {
             textChannel.sendMessageEmbeds(getEmbed()).queue();
+            demolish();
         }else {
             throw new IllegalArgumentException("Provided channel ID dose not exist for join/leave event in " + getConfig().getFile().getName());
         }
@@ -236,33 +239,36 @@ public class EmbedFromYML {
         if (getType() == EmbedFromYML.TriggerMode.JOIN) {
             build(event.getMember());
             joinAndLeave();
+            demolish();
         }
     }
     public void sendEmbed(GuildMemberRemoveEvent event) {
         if (getType() == EmbedFromYML.TriggerMode.LEAVE) {
             build(event.getMember());
             joinAndLeave();
+            demolish();
         }
     }
     public void sendEmbed(MessageReceivedEvent event) {
         if (event.getAuthor().isBot()) return;
         if ((getType() == TriggerMode.JOIN) || (getType() == TriggerMode.LEAVE)) return;
-        switch (getType()) {
-            case COMMAND:
-                String[] args = event.getMessage().getContentRaw().split(" ");
-                build(event.getMember());
-                if (!args[0].equalsIgnoreCase(getCommand())) {
-                    return;
-                }
-                break;
-            case MESSAGE:
-                build(event.getMember());
-                if (!event.getMessage().getContentRaw().toLowerCase(Locale.ROOT).contains(getMessage())) {
-                    return;
-                }
-                break;
+        if (getType() == TriggerMode.MESSAGE) {
+            if (!message.equals(event.getMessage().getContentRaw())) return;
+            build(event.getMember());
+            if (!event.getMessage().getContentRaw().toLowerCase(Locale.ROOT).contains(getMessage())) {
+                return;
+            }
+            event.getChannel().sendMessageEmbeds(getEmbed()).queue();
+            demolish();
         }
-        event.getChannel().sendMessageEmbeds(getEmbed()).queue();
+    }
+    public void sendEmbed(SlashCommandInteractionEvent event) {
+        if (getType() == TriggerMode.COMMAND) {
+            if (!event.getName().equals(this.command)) return;
+            build(event.getMember());
+            event.replyEmbeds(getEmbed()).queue();
+            demolish();
+        }
     }
     public enum TriggerMode{
         COMMAND,

@@ -29,7 +29,7 @@ public class AnnouncementEvent {
         List<String> args = Arrays.asList(event.getMessage().getContentRaw().toLowerCase().split(" "));
         if (args.size() < 2) return;
         EmbedBuilder embed = new EmbedBuilder();
-        DefaultEmbed.setDefault(embed, event);
+        DefaultEmbed.setDefault(embed, event.getAuthor().getAvatarUrl(), event.getAuthor().getName(), event.getGuild().getName(), event.getGuild().getIconUrl());
         event.getMessage().delete().queue();
         embed.setTitle(":speaking_head: Announcement");
         embed.setDescription(event.getMessage().getContentRaw());

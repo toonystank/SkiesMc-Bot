@@ -1,7 +1,8 @@
 trigger:
   event:
     type: COMMAND
-    command: "!vote"
+    command: "vote"
+    description: "Get vote links"
 title: "Vote Links"
 author:
   name: {user}

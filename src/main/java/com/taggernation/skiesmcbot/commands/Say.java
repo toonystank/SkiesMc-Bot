@@ -17,7 +17,7 @@ public class Say {
         if (!Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_CHANNEL)) return;
         event.getMessage().delete().queue();
         EmbedBuilder embed = new EmbedBuilder();
-        DefaultEmbed.setDefault(embed,event);
+        DefaultEmbed.setDefault(embed, event.getAuthor().getAvatarUrl(), event.getAuthor().getName(), event.getGuild().getName(), event.getGuild().getIconUrl());
 
         String[] args = event.getMessage().getContentRaw().split(" ");
         TextChannel channel;

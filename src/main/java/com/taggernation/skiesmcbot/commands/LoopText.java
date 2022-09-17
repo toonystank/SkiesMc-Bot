@@ -4,6 +4,7 @@ import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.tasks.LoopTask;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.bukkit.Bukkit;
 
@@ -15,8 +16,8 @@ public class LoopText {
     public LoopText(LoopTask loopTask) {
         this.loopTask = loopTask;
     }
-    public void loopCommand(MessageReceivedEvent event) {
-        String[] args = event.getMessage().getContentRaw().split(" ");
+    public void loopCommand(SlashCommandInteractionEvent event) {
+        String[] args = Objects.requireNonNull(event.getOption("text")).getAsString().split(" ");
 
         if (!Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_SERVER)) return;
         if (args.length > 1) {
@@ -24,7 +25,6 @@ public class LoopText {
             String text;
             try {
                 channel = SkiesMCBOT.getJda().getTextChannelById(args[1]);
-                text = event.getMessage().getContentRaw().replace(args[1], "");
             } catch (NumberFormatException e) {
                 channel = event.getTextChannel();
             }
@@ -32,7 +32,7 @@ public class LoopText {
                 channel = event.getTextChannel();
 
             }
-            text = event.getMessage().getContentRaw().replace("!looptext ", "");
+            text = Objects.requireNonNull(event.getOption("text")).getAsString();
             if (!loopTask.isTaskRunning()) {
                 channel.sendMessage("started with text `" + text + "`").queue();
                 loopTask.setTaskRunning(true);

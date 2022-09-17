@@ -1,5 +1,6 @@
 package com.taggernation.skiesmcbot;
 
+import com.earth2me.essentials.Essentials;
 import com.taggernation.skiesmcbot.commands.HelpEmbed;
 import com.taggernation.skiesmcbot.commands.Test;
 import com.taggernation.skiesmcbot.events.*;
@@ -9,9 +10,10 @@ import com.taggernation.skiesmcbot.tasks.LoopTask;
 import com.taggernation.skiesmcbot.utils.Placeholder;
 import com.taggernation.skiesmcbot.utils.SuggestionManager;
 import com.taggernation.taggernationlib.config.ConfigManager;
-import me.realized.duels.api.Duels;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -47,7 +49,7 @@ public final class SkiesMCBOT extends JavaPlugin {
     }
 
     private final List<EmbedFromYML> embedFromYMLList = new ArrayList<>();
-    public static Duels duels;
+    public Essentials essentials;
 
     public LoopTask getLoopTask() {
         return loopTask;
@@ -73,7 +75,8 @@ public final class SkiesMCBOT extends JavaPlugin {
         instance = this;
 
         Placeholder placeholder = new Placeholder();
-        duelsExist();
+        essentialsExist();
+
 
         this.getLogger().info("Starting up...");
         ConfigManager mainConfig;
@@ -86,9 +89,26 @@ public final class SkiesMCBOT extends JavaPlugin {
                 e.printStackTrace();
                 this.onDisable();
             }
+            jda.updateCommands().addCommands(
+                    Commands.slash("tps", "Get the server tps")
+                            .addOption(OptionType.BOOLEAN, "start","start tps")
+                            .addOption(OptionType.BOOLEAN,"stop","stop tps")
+                            .addOption(OptionType.BOOLEAN, "status","status of tps")
+                            .addOption(OptionType.INTEGER,"setinterval","set the interval of tps")
+                    , Commands.slash("playerlist","List all online players")
+                    , Commands.slash("list","List all online players")
+                    , Commands.slash("players","List all online players")
+                            .addOption(OptionType.STRING, "player", "provide a valid player name")
+                    , Commands.slash("playerinfo","Get info about a player")
+                            .addOption(OptionType.STRING, "player", "provide a valid player name")
+                    , Commands.slash("profile","Get info about a player")
+                            .addOption(OptionType.STRING, "player", "provide a valid player name"))
+                    .queue();
             tpsMonitor = new TpsMonitor( jda, mainConfig);
             tpsMonitor.run();
+/*
             this.getServer().getPluginManager().registerEvents(new CmiBanEvent(mainConfig, jda), this);
+*/
 
             for (String embeds: mainConfig.getStringList("embeds")) {
                 this.getLogger().info("Loading embed: " + embeds);
@@ -115,7 +135,8 @@ public final class SkiesMCBOT extends JavaPlugin {
             CommandEvent ce = new CommandEvent(loopTask,tpsMonitor);
             SuggestionEvent se = new SuggestionEvent(mainConfig, sum);
             AnnouncementEvent ae = new AnnouncementEvent(mainConfig);
-            jda.addEventListener(new EventManager(se, ce, ae, embedFromYMLList));
+            Meme meme = new Meme(this, jda);
+            jda.addEventListener(new EventManager(se, ce, ae, embedFromYMLList, meme));
             jda.addEventListener(new Test());
         } catch (IOException e) {
             e.printStackTrace();
@@ -125,7 +146,6 @@ public final class SkiesMCBOT extends JavaPlugin {
         this.getLogger().info("Started up!");
         HelpEmbed.addCommand("!profile <player>" + "- Gets information about a player");
         HelpEmbed.addCommand("!playerlist" + "- Get the List of online players \n > **Command allies** : `!list` && `!players`");
-        HelpEmbed.addCommand("!leaderboard duels" + "- Get the leaderboard of duels \n > **Command allies** : `!status duels` && `!top duels`");
     }
 
     @Override
@@ -135,11 +155,11 @@ public final class SkiesMCBOT extends JavaPlugin {
         this.getServer().getScheduler().cancelTasks(this);
         this.getLogger().info("Shutting down...");
     }
-    public void duelsExist() {
-        if (instance.getServer().getPluginManager().getPlugin("Duels") != null) {
-            duels = (Duels) Bukkit.getServer().getPluginManager().getPlugin("Duels");
+    public void essentialsExist() {
+        if (instance.getServer().getPluginManager().getPlugin("Essentials") != null) {
+            essentials = (Essentials) Bukkit.getServer().getPluginManager().getPlugin("Essentials");
         } else {
-            duels = null;
+            essentials = null;
         }
     }
 }

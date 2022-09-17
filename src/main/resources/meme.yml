@@ -1,0 +1,24 @@
+title: "Meme by {user}"
+description:
+  - Rate the meme
+channel_id: 0000000
+reactions:
+  upvote: "👍"
+  noreaction: "🫥"
+  downvote: "👎"
+leaderboard:
+  command: memetop
+  description: "Memes leaderboard. Post memes on {mentionchannel}"
+  title: "Memes leaderboard ({mentionchannel})"
+  format:
+    default: "{user} `:` 👍**{upvotes}** 🫥**{noreactions}** 👎**{downvotes}**"
+    upvote: "{user} `:` 👍**{upvotes}**"
+    downvote: "{user} `:` 👎**{downvotes}**"
+    noreaction: "{user} `:` 🫥**{noreactions}**"
+memeinfo:
+  command: memeinfo
+  description: "Get infomation about a user's meme status"
+  format:
+    title: "{username}'s meme states"
+    description:
+      - "👍**{upvotes}** `|` 👎**{downvotes}** `|` 🫥**{noreactions}**"

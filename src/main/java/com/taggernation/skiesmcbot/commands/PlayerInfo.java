@@ -4,10 +4,8 @@ import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.utils.DefaultEmbed;
 import com.taggernation.skiesmcbot.utils.Placeholder;
 import com.taggernation.taggernationlib.config.ConfigManager;
-import me.realized.duels.api.Duels;
-import me.realized.duels.api.user.User;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Statistic;
 import org.bukkit.configuration.InvalidConfigurationException;
@@ -16,14 +14,11 @@ import org.bukkit.entity.Player;
 import java.io.IOException;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 
 public class PlayerInfo {
 
-    private final Duels duels;
-    private final MessageReceivedEvent event;
-    public PlayerInfo(Duels duels, MessageReceivedEvent event) {
-        this.duels = duels;
+    private final SlashCommandInteractionEvent event;
+    public PlayerInfo( SlashCommandInteractionEvent event) {
         this.event = event;
     }
 
@@ -33,46 +28,31 @@ public class PlayerInfo {
     public void sendPlayerInfo() throws IOException, InvalidConfigurationException {
         playerData.reload();
         EmbedBuilder embedBuilder = new EmbedBuilder();
-        String[] args = event.getMessage().getContentRaw().split(" ");
-        DefaultEmbed.setDefault(embedBuilder, event);
+        String player = Objects.requireNonNull(event.getOption("player")).getAsString();
+        DefaultEmbed.setDefault(embedBuilder, Objects.requireNonNull(event.getMember()).getAvatarUrl(), event.getMember().getEffectiveName(), Objects.requireNonNull(event.getGuild()).getName(), event.getGuild().getIconUrl());
 
-        if (args.length > 1) {
-            String player = args[1].toUpperCase(Locale.ROOT);
-            if (!playerData.getConfig().contains("players." + player)) {
-                embedBuilder.setTitle("Error");
-                embedBuilder.setDescription("Player not found. Join once to record your data.");
-                event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
-                return;
-            }
-            User duelsData = duels.getUserManager().get(UUID.fromString(formatFields(DataType.UUID,player)));
-            embedBuilder.setTitle(":stars: `"+ player + "`'s Profile");
-            embedBuilder.setDescription("Player found. Here is their information.");
-            embedBuilder.addField(":person_bouncing_ball: **Player statistics**", "player in-game statistics", false);
-            embedBuilder.addField("Nick", formatFields(DataType.NICK, player), true);
-            embedBuilder.addField("Rank ", formatFields(DataType.RANK, player), true);
-            embedBuilder.addField("Balance ", formatFields(DataType.BALANCE,player), true);
-            embedBuilder.addField("K/D Ratio ", formatFields(DataType.KDR,player) + " ", true);
-            embedBuilder.addField("Job points ", formatFields(DataType.JOBS_POINTS,player), true);
-            embedBuilder.addField("Claim blocks ", formatFields(DataType.CLAIM_BLOCKS,player), true);
-            if (Bukkit.getPlayer(player) != null) {
-                int playerPing = Objects.requireNonNull(Bukkit.getPlayer(player)).getPing();
-                embedBuilder.addField("Ping", playerPing + "ms", true);
-            }
-/*            if (duelsData != null) {
-                embedBuilder.addField(":crossed_swords: **Duels statistics**", "Duels in-game statistics", false);
-                embedBuilder.addField("Wins ", duelsData.getWins() + "", true);
-                embedBuilder.addField("Losses ", duelsData.getLosses() + "", true);
-            }else {
-                embedBuilder.addField(":crossed_swords: **Duels statistics**", "Player dose not have any duels statistics", true);
-            }*/
-            embedBuilder.setThumbnail("https://crafatar.com/renders/body/" + formatFields(DataType.UUID,player) + "?overlay");
-
-        }else {
+        if (!playerData.getConfig().contains("players." + player.toUpperCase(Locale.ROOT))) {
             embedBuilder.setTitle("Error");
-            embedBuilder.setDescription("Please specify a player.\n" + " Usage: `!playerinfo <player>`");
+            embedBuilder.setDescription("Player not found. Join once to record your data.");
+            event.getHook().sendMessageEmbeds(embedBuilder.build()).queue();
             return;
         }
-        event.getTextChannel().sendMessageEmbeds(embedBuilder.build()).queue();
+        embedBuilder.setTitle(":stars: `" + player + "`'s Profile");
+        embedBuilder.setDescription("Player found. Here is their information.");
+        embedBuilder.addField(":person_bouncing_ball: **Player statistics**", "player in-game statistics", false);
+        embedBuilder.addField("Nick", formatFields(DataType.NICK, player), true);
+        embedBuilder.addField("Rank ", formatFields(DataType.RANK, player), true);
+        embedBuilder.addField("Balance ", formatFields(DataType.BALANCE, player), true);
+        embedBuilder.addField("Level ", formatFields(DataType.LEVEL, player), true);
+        embedBuilder.addField("K/D Ratio ", formatFields(DataType.KDR, player) + " ", true);
+        embedBuilder.addField("Coins ", formatFields(DataType.COINS, player), true);
+        embedBuilder.addField("Claim blocks ", formatFields(DataType.CLAIM_BLOCKS, player), true);
+        if (Bukkit.getPlayer(player) != null) {
+            int playerPing = Objects.requireNonNull(Bukkit.getPlayer(player)).getPing();
+            embedBuilder.addField("Ping", playerPing + "ms", true);
+        }
+        embedBuilder.setThumbnail("https://cravatar.eu/helmhead/" + formatFields(DataType.NAME, player) + ".png");
+        event.getHook().sendMessageEmbeds(embedBuilder.build()).queue();
     }
 
     public String formatFields(DataType dataType, String playerName) {
@@ -94,19 +74,24 @@ public class PlayerInfo {
                     return kdr + "";
                 }
                 return playerData.getString("players." + playerName + ".kdr");
-            case JOBS_POINTS:
+            case LEVEL:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%jobsr_user_points_fixed%", player);
+                    return placeholder.replace("%clv_player_level%", player);
                 }
-                return playerData.getString("players." + playerName + ".jobs_points");
+                return playerData.getString("players." + playerName + ".level");
+            case COINS:
+                if (player != null && player.isOnline()) {
+                    return placeholder.replace("%tmtokens_get_tokens_fixed%", player);
+                }
+                return playerData.getString("players." + playerName + ".coins");
             case CLAIM_BLOCKS:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%griefprevention_remainingclaims_formatted%", player);
+                    return placeholder.replace("%lands_land_chunks%`/`%lands_land_chunks_max%", player);
                 }
                 return playerData.getString("players." + playerName + ".claim_blocks");
             case BALANCE:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%cmi_user_balance_formatted%", player);
+                    return placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getMoney().toPlainString(), player);
                 }
                 return playerData.getString("players." + playerName + ".balance");
             case RANK:
@@ -116,14 +101,14 @@ public class PlayerInfo {
                 return playerData.getString("players." + playerName + ".rank");
             case NICK:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%cmi_user_cleannickname%", player);
+                    return placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getNick(), player);
                 }
                 return playerData.getString("players." + playerName + ".nick");
-            case UUID:
+            case NAME:
                 if (player != null && player.isOnline()) {
-                    return player.getUniqueId().toString();
+                    return player.getName();
                 }
-                return playerData.getString("players." + playerName + ".UUID");
+                return playerData.getString("players." + playerName + ".name");
             default:
                 return null;
         }
@@ -132,11 +117,12 @@ public class PlayerInfo {
         RANK,
         BALANCE,
         KILLS,
+        LEVEL,
         DEATHS,
         KDR,
-        JOBS_POINTS,
+        COINS,
         CLAIM_BLOCKS,
         NICK,
-        UUID
+        NAME
     }
 }

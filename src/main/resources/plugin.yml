@@ -5,5 +5,4 @@ api-version: 1.18
 authors: [ Edward ]
 depend:
   - 'TaggerNationLib'
-soft-depend: [Duels]
 

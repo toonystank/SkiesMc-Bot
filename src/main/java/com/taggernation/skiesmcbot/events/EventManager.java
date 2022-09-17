@@ -1,10 +1,13 @@
 package com.taggernation.skiesmcbot.events;
 
+import com.taggernation.skiesmcbot.Meme;
 import com.taggernation.skiesmcbot.utils.EmbedFromYML;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
+import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -19,14 +22,24 @@ public class EventManager extends ListenerAdapter {
     private final SuggestionEvent suggestion;
     private final CommandEvent command;
     private final AnnouncementEvent announcement;
+    private final Meme meme;
     private final List<EmbedFromYML> embeds;
 
-    public EventManager(SuggestionEvent suggestion, CommandEvent commandEvent, AnnouncementEvent announcementEvent, List<EmbedFromYML> embeds) {
+    public EventManager(SuggestionEvent suggestion, CommandEvent commandEvent, AnnouncementEvent announcementEvent, List<EmbedFromYML> embeds, Meme meme) {
         this.suggestion = suggestion;
         this.command = commandEvent;
         this.announcement = announcementEvent;
         this.embeds = embeds;
+        this.meme = meme;
         Bukkit.getLogger().info("EventManager initialized.");
+    }
+
+    @Override
+    public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
+        command.onCommand(event);
+        embeds.forEach(embed -> embed.sendEmbed(event));
+        meme.onInfo(event);
+        meme.onLeaderBoard(event);
     }
 
     @Override
@@ -37,6 +50,7 @@ public class EventManager extends ListenerAdapter {
             suggestion.onSuggestionSend(event);
             announcement.onAnnouncementMessage(event);
             embeds.forEach(embed -> embed.sendEmbed(event));
+            meme.onMeme(event);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -46,9 +60,14 @@ public class EventManager extends ListenerAdapter {
         if (Objects.requireNonNull(event.getUser()).isBot()) return;
         try {
             suggestion.onSuggestionReactionAdd(event);
+            meme.onReact(event);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
+    }
+    @Override
+    public void onMessageReactionRemove(@NotNull MessageReactionRemoveEvent event) {
+        meme.onUnReact(event);
     }
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
@@ -58,4 +77,5 @@ public class EventManager extends ListenerAdapter {
     public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
         embeds.forEach(embed -> embed.sendEmbed(event));
     }
+
 }

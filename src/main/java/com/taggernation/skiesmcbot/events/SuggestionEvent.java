@@ -48,7 +48,7 @@ public class SuggestionEvent {
             return;
         }
         EmbedBuilder embed = new EmbedBuilder();
-        DefaultEmbed.setDefault(embed,event);
+        DefaultEmbed.setDefault(embed, event.getAuthor().getAvatarUrl(), event.getAuthor().getName(), event.getGuild().getName(), event.getGuild().getIconUrl());
         addThumbnail(embed);
         suggestionManager.sendSuggestionEmbed(embed, event.getTextChannel(), event.getMessage().getContentRaw(), event.getAuthor().getId());
     }
