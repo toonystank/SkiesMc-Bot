@@ -2,6 +2,7 @@ trigger:
   event:
     type: JOIN
     channel: "877443938640871466"
+    rank: 876768130528063498
 title: "`{user}` Joined the server"
 author:
   name: {user}

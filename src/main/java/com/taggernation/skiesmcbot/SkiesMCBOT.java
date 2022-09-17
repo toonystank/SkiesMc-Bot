@@ -98,11 +98,10 @@ public final class SkiesMCBOT extends JavaPlugin {
                     , Commands.slash("playerlist","List all online players")
                     , Commands.slash("list","List all online players")
                     , Commands.slash("players","List all online players")
-                            .addOption(OptionType.STRING, "player", "provide a valid player name")
                     , Commands.slash("playerinfo","Get info about a player")
-                            .addOption(OptionType.STRING, "player", "provide a valid player name")
+                            .addOption(OptionType.STRING, "player", "provide a valid player name" ,true)
                     , Commands.slash("profile","Get info about a player")
-                            .addOption(OptionType.STRING, "player", "provide a valid player name"))
+                            .addOption(OptionType.STRING, "player", "provide a valid player name", true))
                     .queue();
             tpsMonitor = new TpsMonitor( jda, mainConfig);
             tpsMonitor.run();

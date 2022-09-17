@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -28,6 +29,7 @@ public class EmbedFromYML {
     private String channel;
     private TriggerMode type;
     private String message;
+    private String joinRank = null;
 
     private String title;
     private List<String> description;
@@ -150,7 +152,11 @@ public class EmbedFromYML {
                 this.commandDescription = config.getString("trigger.event.description");
                 jda.upsertCommand(this.command, this.commandDescription).queue();
             }
-            case LEAVE, JOIN -> this.channel = config.getString("trigger.event.channel");
+            case LEAVE, JOIN -> {
+                this.channel = config.getString("trigger.event.channel");
+                this.joinRank = config.getString("trigger.event.rank");
+
+            }
             case MESSAGE -> this.message = config.getString("trigger.event.message").toLowerCase(Locale.ROOT);
         }
 
@@ -235,10 +241,17 @@ public class EmbedFromYML {
             throw new IllegalArgumentException("Provided channel ID dose not exist for join/leave event in " + getConfig().getFile().getName());
         }
     }
+    private void addRole(Member member) {
+        Role role = getJDA().getRoleById(this.joinRank);
+        if (role != null) {
+            member.getGuild().addRoleToMember(member, role).queue();
+        }
+    }
     public void sendEmbed(GuildMemberJoinEvent event) {
         if (getType() == EmbedFromYML.TriggerMode.JOIN) {
             build(event.getMember());
             joinAndLeave();
+            addRole(event.getMember());
             demolish();
         }
     }
