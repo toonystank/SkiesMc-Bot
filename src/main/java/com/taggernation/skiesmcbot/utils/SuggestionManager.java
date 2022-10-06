@@ -5,11 +5,14 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.requests.RestAction;
 
 import java.awt.*;
 import java.util.Date;
 
+@SuppressWarnings("unused")
 public class SuggestionManager {
 
     private final ConfigManager Suggestions;
@@ -33,25 +36,25 @@ public class SuggestionManager {
     public String getData(String messageID, DataType dataType) {
         return Suggestions.getString("suggestions." + messageID + "." + dataType.toString());
     }
-    public void changeSuggestionStatus(EmbedBuilder embed, TextChannel channel, MessageReaction reaction, String messageID, Member member) {
+    public void changeSuggestionStatus(EmbedBuilder embed, Guild guild, MessageChannel channel, MessageReaction reaction, String messageID, Member member) {
         if (isSuggestionExist(messageID)) {
             String suggestionAuthorID = Suggestions.getString("suggestions." + messageID + ".AUTHOR");
             User suggestionAuthorName = jda.retrieveUserById(suggestionAuthorID).complete();
-            if (reaction.getReactionEmote().getName().equals("✅")) {
+            if (reaction.getEmoji().getName().equals("✅")) {
                 reaction.removeReaction(member.getUser()).queue();
                 embed.setTitle(suggestionAuthorName.getName() + "'s Suggestion ➝ :stars: Accepted").setDescription(getData(messageID,DataType.TEXT));
-                checkEmbed(embed, channel, messageID, member,SuggestionStatus.ACCEPTED);
+                checkEmbed(embed, guild, channel, messageID, member,SuggestionStatus.ACCEPTED);
                 Suggestions.set("suggestions." + messageID + ".STATUS", SuggestionStatus.ACCEPTED.toString());
             }
-            if (reaction.getReactionEmote().getName().equals("❌")) {
+            if (reaction.getEmoji().getName().equals("❌")) {
                 reaction.removeReaction(member.getUser()).queue();
                 embed.setTitle("❌ " +  suggestionAuthorName.getName() + "'s Suggestion ➝ :scissors: Rejected").setDescription(getData(messageID,DataType.TEXT));
-                checkEmbed(embed, channel, messageID, member,SuggestionStatus.DENIED);
+                checkEmbed(embed, guild, channel, messageID, member,SuggestionStatus.DENIED);
                 Suggestions.set("suggestions." + messageID + ".STATUS", SuggestionStatus.DENIED.toString());
             }
         }
     }
-    public void checkEmbed(EmbedBuilder embed, TextChannel channel, String messageID, Member member, SuggestionStatus status) {
+    public void checkEmbed(EmbedBuilder embed,Guild guild, MessageChannel channel, String messageID, Member member, SuggestionStatus status) {
         if (!member.hasPermission(Permission.ADMINISTRATOR)) return;
         if (status == SuggestionStatus.ACCEPTED) {
             embed.setAuthor("Accepted by " + member.getUser().getName(), null, member.getUser().getAvatarUrl());
@@ -59,7 +62,7 @@ public class SuggestionManager {
             embed.setAuthor("Rejected by " + member.getUser().getName(), null, member.getUser().getAvatarUrl());
         }
         embed.setTimestamp(new Date().toInstant());
-        embed.setFooter(channel.getGuild().getName(), channel.getGuild().getIconUrl());
+        embed.setFooter(guild.getName(), guild.getIconUrl());
         embed.setColor(Color.BITMASK);
         channel.editMessageEmbedsById(messageID, embed.build()).queue();
     }
@@ -68,15 +71,15 @@ public class SuggestionManager {
     public boolean isSuggestionExist(String messageID) {
         return Suggestions.get("suggestions." + messageID) != null;
     }
-    public void sendSuggestionEmbed(EmbedBuilder embed, TextChannel channel, String suggestion, String author) {
+    public void sendSuggestionEmbed(EmbedBuilder embed, MessageChannel channel, String suggestion, String author) {
         embed.setTitle(":rocket: New Suggestion");
         embed.setDescription(suggestion);
         RestAction<Message> ra = channel.sendMessageEmbeds(embed.build());
         Message message = ra.complete();
-        message.addReaction("⬆️").queue();
-        message.addReaction("⬇️").queue();
-        message.addReaction("✅").queue();
-        message.addReaction("❌").queue();
+        message.addReaction(Emoji.fromFormatted("⬆️")).queue();
+        message.addReaction(Emoji.fromFormatted("⬇️")).queue();
+        message.addReaction(Emoji.fromFormatted("✅")).queue();
+        message.addReaction(Emoji.fromFormatted("❌")).queue();
         saveToYML(suggestion, author, message.getId());
     }
     enum DataType {

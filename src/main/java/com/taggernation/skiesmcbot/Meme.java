@@ -6,6 +6,8 @@ import lombok.Getter;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
@@ -63,18 +65,18 @@ public class Meme extends ConfigManager {
         }
         embed.setDescription(event.getMessage().getContentRaw());
         DefaultEmbed.setDefault(embed,event.getMember().getAvatarUrl(),event.getMember().getEffectiveName(),event.getGuild().getName(),event.getGuild().getIconUrl());
-        addReaction(embed, event.getTextChannel(), event.getMember().getUser());
+        addReaction(embed, event.getChannel(), event.getMember().getUser());
         this.isAttachment = false;
     }
-    void addReaction(EmbedBuilder embed, TextChannel channel, User user) {
+    void addReaction(EmbedBuilder embed, MessageChannel channel, User user) {
         RestAction<Message> ra = channel.sendMessageEmbeds(embed.build());
         Message message = ra.complete();
         MemeData data = new MemeData(SkiesMCBOT.getInstance(), this, jda, user);
-        message.addReaction(this.getString("reactions.upvote")).queue();
+        message.addReaction(Emoji.fromFormatted(this.getString("reactions.upvote"))).queue();
         data.setData(MemeData.Reactions.UPVOTE, 0);
-        message.addReaction(this.getString("reactions.noreaction")).queue();
+        message.addReaction(Emoji.fromFormatted(this.getString("reactions.noreaction"))).queue();
         data.setData(MemeData.Reactions.NO_REACTION, 0);
-        message.addReaction(this.getString("reactions.downvote")).queue();
+        message.addReaction(Emoji.fromFormatted(this.getString("reactions.downvote"))).queue();
         data.setData(MemeData.Reactions.DOWN_VOTE, 0);
         data.setData(MemeData.Reactions.EMBED_ID, message.getId());
         userMemeDataMap.put(user, data);
@@ -88,11 +90,11 @@ public class Meme extends ConfigManager {
         }
         userMemeDataMap.forEach((user, memeData1) -> memeData1.setUpdated().getEmbedIDS().forEach(ids -> {
             if (!ids.equals(event.getMessageId())) return;
-            if (event.getReactionEmote().getName().equals(this.getString("reactions.upvote")))
+            if (event.getEmoji().getName().equals(this.getString("reactions.upvote")))
                 memeData1.addReaction(MemeData.Reactions.UPVOTE);
-            if (event.getReactionEmote().getName().equals(this.getString("reactions.downvote")))
+            if (event.getEmoji().getName().equals(this.getString("reactions.downvote")))
                 memeData1.addReaction(MemeData.Reactions.DOWN_VOTE);
-            if (event.getReactionEmote().getName().equals(this.getString("reactions.noreaction")))
+            if (event.getEmoji().getName().equals(this.getString("reactions.noreaction")))
                 memeData1.addReaction(MemeData.Reactions.NO_REACTION);
         }));
 
@@ -105,11 +107,11 @@ public class Meme extends ConfigManager {
         }
         userMemeDataMap.forEach((user, memeData1) -> memeData1.setUpdated().getEmbedIDS().forEach(ids -> {
             if (!ids.equals(event.getMessageId())) return;
-            if (event.getReactionEmote().getName().equals(this.getString("reactions.upvote")))
+            if (event.getEmoji().getName().equals(this.getString("reactions.upvote")))
                 memeData1.removeReaction(MemeData.Reactions.UPVOTE);
-            if (event.getReactionEmote().getName().equals(this.getString("reactions.downvote")))
+            if (event.getEmoji().getName().equals(this.getString("reactions.downvote")))
                 memeData1.removeReaction(MemeData.Reactions.DOWN_VOTE);
-            if (event.getReactionEmote().getName().equals(this.getString("reactions.noreaction")))
+            if (event.getEmoji().getName().equals(this.getString("reactions.noreaction")))
                 memeData1.removeReaction(MemeData.Reactions.NO_REACTION);
         }));
 
@@ -148,7 +150,7 @@ public class Meme extends ConfigManager {
         }
     }
 
-    public void processSortedList(List<String> stringList, String s, String format, Channel channel) {
+    public void processSortedList(List<String> stringList, String s, String format, MessageChannel channel) {
         RestAction<User> restUser = jda.retrieveUserById(s);
         User user = restUser.complete();
         stringList.add(formatPlaceholders(format, channel, user));
@@ -229,7 +231,7 @@ public class Meme extends ConfigManager {
         return sortedMap;
     }
 
-    public String formatPlaceholders(String message, Channel channel, User user) {
+    public String formatPlaceholders(String message, MessageChannel channel, User user) {
         Bukkit.getLogger().info(message + " user " + user);
         if (user == null) {
             return message;

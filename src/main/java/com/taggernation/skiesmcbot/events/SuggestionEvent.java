@@ -1,20 +1,19 @@
 package com.taggernation.skiesmcbot.events;
 
 import club.minnced.discord.webhook.external.JDAWebhookClient;
+import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.utils.DefaultEmbed;
 import com.taggernation.skiesmcbot.utils.SuggestionManager;
 import com.taggernation.taggernationlib.config.ConfigManager;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
-import net.dv8tion.jda.api.requests.restaction.WebhookAction;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -25,14 +24,19 @@ public class SuggestionEvent {
 
     private final ConfigManager mainConfig;
     private final SuggestionManager suggestionManager;
+    private Webhook hook;
+
     public SuggestionEvent(ConfigManager config, SuggestionManager suggestionManager) {
         this.mainConfig = config;
         this.suggestionManager = suggestionManager;
+        MessageChannelUnion channel = (MessageChannelUnion) SkiesMCBOT.getJda().getTextChannelById(mainConfig.getString("suggestion.channel"));
+        if (channel != null) {
+            hook = channel.asTextChannel().createWebhook("Suggestion").complete();
+        }
     }
 
     public void onSuggestionSend(@NotNull MessageReceivedEvent event) throws IOException {
-        if (!(event.getChannel() instanceof TextChannel)) return;
-        if (!event.getTextChannel().getId().equals(mainConfig.getString("suggestion.channel"))) return;
+        if (!event.getChannel().getId().equals(mainConfig.getString("suggestion.channel"))) return;
         String[] args = event.getMessage().getContentRaw().split(" ");
         if (args.length < 2) return;
         event.getMessage().delete().queue();
@@ -41,7 +45,7 @@ public class SuggestionEvent {
             String message = event.getMessage().getContentRaw().replace("!message ", "");
             InputStream image = new URL(Objects.requireNonNull(event.getAuthor().getAvatarUrl())).openStream();
             Icon icon = Icon.from(image);
-            Webhook webhook = ((TextChannel) event.getChannel()).createWebhook(event.getAuthor().getName()).setAvatar(icon).complete();
+            Webhook webhook = hook.getManager().setName(event.getAuthor().getName()).setAvatar(icon).getWebhook();
             try (JDAWebhookClient client = JDAWebhookClient.from(webhook)) {
                 client.send(message);
             }
@@ -50,15 +54,14 @@ public class SuggestionEvent {
         EmbedBuilder embed = new EmbedBuilder();
         DefaultEmbed.setDefault(embed, event.getAuthor().getAvatarUrl(), event.getAuthor().getName(), event.getGuild().getName(), event.getGuild().getIconUrl());
         addThumbnail(embed);
-        suggestionManager.sendSuggestionEmbed(embed, event.getTextChannel(), event.getMessage().getContentRaw(), event.getAuthor().getId());
+        Bukkit.getLogger().info("Suggestion sent by " + event.getAuthor().getName() + " in " + event.getGuild().getName());
+        suggestionManager.sendSuggestionEmbed(embed, event.getChannel(), event.getMessage().getContentRaw(), event.getAuthor().getId());
     }
     public void onSuggestionReactionAdd(@NotNull MessageReactionAddEvent event) throws MalformedURLException {
-        if (!(event.getChannel() instanceof TextChannel)) return;
-        if (!(event.getChannel() instanceof TextChannel)) return;
-        if (!event.getTextChannel().getId().equals(mainConfig.getString("suggestion.channel"))) return;
+        if (!event.getChannel().getId().equals(mainConfig.getString("suggestion.channel"))) return;
         EmbedBuilder embed = new EmbedBuilder();
         addThumbnail(embed);
-        suggestionManager.changeSuggestionStatus(embed, event.getTextChannel(),event.getReaction(),event.getMessageId(),event.getMember());
+        suggestionManager.changeSuggestionStatus(embed,event.getGuild(), event.getChannel(),event.getReaction(),event.getMessageId(),event.getMember());
     }
     private void addThumbnail(EmbedBuilder embed) {
         if (mainConfig.getString("suggestion.thumbnail").equals("NONE")) {

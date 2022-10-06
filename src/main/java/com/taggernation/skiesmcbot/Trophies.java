@@ -29,5 +29,13 @@ public class Trophies extends ConfigManager {
         endingDate = LocalDate.parse(this.getString("ending_date"));
     }
 
+    public void saveToFile() {
+        if ((startingDate == null) && (endingDate == null)) return;
+
+        assert startingDate != null;
+        this.set("starting_date", startingDate.toString());
+        this.set("ending_date", endingDate.toString());
+        this.save();
+    }
 
 }

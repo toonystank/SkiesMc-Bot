@@ -1,6 +1,7 @@
 package com.taggernation.skiesmcbot.events;
 
 import com.taggernation.skiesmcbot.Meme;
+import com.taggernation.skiesmcbot.WebHookChat;
 import com.taggernation.skiesmcbot.utils.EmbedFromYML;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -24,13 +25,15 @@ public class EventManager extends ListenerAdapter {
     private final AnnouncementEvent announcement;
     private final Meme meme;
     private final List<EmbedFromYML> embeds;
+    private final WebHookChat webHookChat;
 
-    public EventManager(SuggestionEvent suggestion, CommandEvent commandEvent, AnnouncementEvent announcementEvent, List<EmbedFromYML> embeds, Meme meme) {
+    public EventManager(SuggestionEvent suggestion, CommandEvent commandEvent, AnnouncementEvent announcementEvent, List<EmbedFromYML> embeds, Meme meme, WebHookChat webHookChat) {
         this.suggestion = suggestion;
         this.command = commandEvent;
         this.announcement = announcementEvent;
         this.embeds = embeds;
         this.meme = meme;
+        this.webHookChat = webHookChat;
         Bukkit.getLogger().info("EventManager initialized.");
     }
 
@@ -53,6 +56,10 @@ public class EventManager extends ListenerAdapter {
             meme.onMeme(event);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+        Long channelID = webHookChat.getOtherChannelID();
+        if (channelID.equals(event.getChannel().getIdLong())) {
+            webHookChat.sendWebHook(event.getMessage().getContentRaw(), event.getAuthor().getAvatarUrl(), event.getAuthor().getName(), false, false);
         }
     }
     @Override

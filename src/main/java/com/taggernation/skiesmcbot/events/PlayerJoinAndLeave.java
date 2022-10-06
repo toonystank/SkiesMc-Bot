@@ -16,10 +16,8 @@ import java.util.Locale;
 public class PlayerJoinAndLeave implements Listener {
 
     private final ConfigManager playerData;
-    private final Placeholder placeholder;
-    public PlayerJoinAndLeave(ConfigManager playerData, Placeholder placeholder) {
+    public PlayerJoinAndLeave(ConfigManager playerData) {
         this.playerData = playerData;
-        this.placeholder = placeholder;
     }
     @EventHandler
     public void playerJoin(PlayerJoinEvent e) {
@@ -34,11 +32,12 @@ public class PlayerJoinAndLeave implements Listener {
     public void saveData(Player player)  {
         FileConfiguration playerDataConfig = playerData.getConfig();
         String playerName = player.getName().toUpperCase(Locale.ROOT);
-        playerDataConfig.set("players." + playerName + ".nick", placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getNick(), player));
+        playerDataConfig.set("players." + playerName + ".nick", Placeholder.replace(player.getName(), player));
+        playerDataConfig.set("players." + playerName + ".nick", Placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getNick(), player));
         playerDataConfig.set("players." + playerName + ".UUID", player.getUniqueId().toString());
-        playerDataConfig.set("players." + playerName + ".rank", placeholder.replace("%vault_rank%", player));
-        playerDataConfig.set("players." + playerName + ".level", placeholder.replace("%clv_player_level%", player));
-        playerDataConfig.set("players." + playerName + ".balance", placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getMoney().toPlainString(), player));
+        playerDataConfig.set("players." + playerName + ".rank", Placeholder.replace("%vault_rank%", player));
+        playerDataConfig.set("players." + playerName + ".level", Placeholder.replace("%clv_player_level%", player));
+        playerDataConfig.set("players." + playerName + ".balance", Placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getMoney().toPlainString(), player));
         playerDataConfig.set("players." + playerName + ".kills", player.getStatistic(Statistic.PLAYER_KILLS));
         playerDataConfig.set("players." + playerName + ".deaths", player.getStatistic(Statistic.DEATHS));
         if ((player.getStatistic(Statistic.DEATHS) == 0) || (player.getStatistic(Statistic.PLAYER_KILLS) == 0)) {
@@ -46,8 +45,8 @@ public class PlayerJoinAndLeave implements Listener {
         }else {
             playerDataConfig.set("players." + playerName + ".kdr", (double) player.getStatistic(Statistic.PLAYER_KILLS) / (double) player.getStatistic(Statistic.DEATHS));
         }
-        playerDataConfig.set("players." + playerName + ".coins", placeholder.replace("%tmtokens_get_tokens_fixed%", player));
-        playerDataConfig.set("players." + playerName + ".claim_blocks", placeholder.replace("%lands_land_chunks%`/`%lands_land_chunks_max%", player));
+        playerDataConfig.set("players." + playerName + ".coins", Placeholder.replace("%tmtokens_get_tokens_fixed%", player));
+        playerDataConfig.set("players." + playerName + ".claim_blocks", Placeholder.replace("%lands_land_chunks%`/`%lands_land_chunks_max%", player));
         playerData.save();
     }
 }

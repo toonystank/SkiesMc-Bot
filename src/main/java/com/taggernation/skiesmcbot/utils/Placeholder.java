@@ -13,7 +13,7 @@ public class Placeholder {
      * @param player The player to replace text for
      * @return The replaced text
      */
-    public String replace(String text, Player player) {
+    public static String replace(String text, Player player) {
         return PlaceholderAPI.setPlaceholders(player, text);
     }
 
@@ -23,7 +23,7 @@ public class Placeholder {
      * @param player The player to replace text for
      * @return The replaced text list
      */
-    public List<String> replace(List<String> text, Player player) {
+    public static List<String> replace(List<String> text, Player player) {
         List<String> newText = new ArrayList<>();
         for (String s : text) {
             newText.add(replace(s, player));

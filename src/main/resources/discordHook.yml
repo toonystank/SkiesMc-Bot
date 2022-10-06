@@ -1,0 +1,22 @@
+token: "token1"
+hookid: 0
+# If you need to link another discord web hook
+otherhookid: 0
+guild: 00000
+# If you need to link another discord guild
+otherGuild: 00000
+channelID: 00000
+# If you need to link another discord channel
+otherChannelID: 000
+messageFormat: '<dark_gray>[<blue>D</blue>]</dark_gray> {discordrank} {discordname} » <gray> {message} </gray>'
+joinFormat: '{playername} Joined the server'
+leaveFormat: '{playername} Left the server'
+advancementFormat: ' {playername} made {advancementName}'
+webHookFormat: t
+commands:
+  '1':
+    command: '!ip'
+    message: 'The server IP is: `play.taggernation.com`'
+  '2':
+    command: '!online'
+    message: 'Online players: `{online}`'

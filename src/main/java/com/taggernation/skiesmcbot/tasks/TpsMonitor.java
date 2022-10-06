@@ -2,15 +2,11 @@ package com.taggernation.skiesmcbot.tasks;
 
 import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.taggernationlib.config.ConfigManager;
-import io.papermc.lib.PaperLib;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.requests.RestAction;
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -18,6 +14,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 
+@SuppressWarnings("unused")
 public class TpsMonitor extends BukkitRunnable{
 
     private static final SkiesMCBOT plugin = SkiesMCBOT.getInstance();
@@ -98,7 +95,7 @@ public class TpsMonitor extends BukkitRunnable{
     }
 
     void outputToDiscord(EmbedBuilder embedBuilder) {
-        TextChannel channel = jda.getTextChannelById(config.getString("Logs.tpschannel"));
+        MessageChannel channel = jda.getTextChannelById(config.getString("Logs.tpschannel"));
         if (channel == null) throw new NullPointerException("Logs.tpschannel Channel not found in config");
         if (dataEmbedId == 0) {
             RestAction<Message> ra = channel.sendMessageEmbeds(embedBuilder.build());

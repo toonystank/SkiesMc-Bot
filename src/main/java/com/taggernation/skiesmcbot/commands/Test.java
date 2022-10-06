@@ -3,12 +3,12 @@ package com.taggernation.skiesmcbot.commands;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -47,7 +47,7 @@ public class Test extends ListenerAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        event.getChannel().sendMessage(attributedText.toString()).addFile(outfile).queue();
+        event.getChannel().sendMessage(attributedText.toString()).addFiles().addFiles(FileUpload.fromData(outfile)).queue();
 
     }
 }

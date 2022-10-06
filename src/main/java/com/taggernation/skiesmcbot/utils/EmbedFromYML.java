@@ -9,7 +9,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -28,11 +28,12 @@ public class EmbedFromYML {
     private String commandDescription;
     private String channel;
     private TriggerMode type;
-    private String message;
+    private List<String> message;
     private String joinRank = null;
 
     private String title;
     private List<String> description;
+    private boolean fieldStatus;
     private Set<String> fieldsData = new HashSet<>();
     private ThumbnailType thumbnail = null;
     private String authorName;
@@ -87,7 +88,7 @@ public class EmbedFromYML {
      * get the message from yml
      * @return String message from yml
      */
-    public String getMessage() {
+    public List<String> getMessage() {
         return message;
     }
     /**
@@ -118,7 +119,7 @@ public class EmbedFromYML {
             embedBuilder.setDescription(String.join("\n", formatDescription(member)));
         }
         embedBuilder.setColor(0x2F3136);
-        if (!fieldsData.isEmpty()) {
+        if (fieldStatus) {
             fieldsData.forEach(field -> embedBuilder.addField(
                     formatMessage(config.getString("fields-data." + field + ".name"), member)
                     ,formatMessage(config.getString("fields-data." + field + ".value"),member)
@@ -146,6 +147,7 @@ public class EmbedFromYML {
     }
     public void initialize() {
         this.type = TriggerMode.valueOf(config.getString("trigger.event.type"));
+        Bukkit.getLogger().info("type: " + type);
         switch (type) {
             case COMMAND -> {
                 this.command = config.getString("trigger.event.command");
@@ -157,7 +159,7 @@ public class EmbedFromYML {
                 this.joinRank = config.getString("trigger.event.rank");
 
             }
-            case MESSAGE -> this.message = config.getString("trigger.event.message").toLowerCase(Locale.ROOT);
+            case MESSAGE -> this.message = config.getStringList("trigger.event.message");
         }
 
         this.title = config.getString("title");
@@ -167,8 +169,8 @@ public class EmbedFromYML {
         this.description = config.getStringList("description");
         this.attachmentURL = config.getString("attachment");
 
-        boolean fields = config.getBoolean("fields");
-        if (fields) {
+        this.fieldStatus = config.getBoolean("fields");
+        if (this.fieldStatus) {
             this.fieldsData = Objects.requireNonNull(config.getConfig().getConfigurationSection("fields-data")).getKeys(false);
         }
 
@@ -196,7 +198,7 @@ public class EmbedFromYML {
         if (messageEmbed == null) {
             return;
         }
-        TextChannel textChannel = jda.getTextChannelById(channelID);
+        MessageChannel textChannel = jda.getTextChannelById(channelID);
         if (textChannel == null) {
             return;
         }
@@ -233,7 +235,7 @@ public class EmbedFromYML {
     }
 
     private void joinAndLeave() {
-        TextChannel textChannel = getJDA().getTextChannelById(getChannel());
+        MessageChannel textChannel = getJDA().getTextChannelById(getChannel());
         if (textChannel != null) {
             textChannel.sendMessageEmbeds(getEmbed()).queue();
             demolish();
@@ -266,12 +268,14 @@ public class EmbedFromYML {
         if (event.getAuthor().isBot()) return;
         if ((getType() == TriggerMode.JOIN) || (getType() == TriggerMode.LEAVE)) return;
         if (getType() == TriggerMode.MESSAGE) {
-            if (!message.equals(event.getMessage().getContentRaw())) return;
             build(event.getMember());
-            if (!event.getMessage().getContentRaw().toLowerCase(Locale.ROOT).contains(getMessage())) {
-                return;
+            boolean contains = false;
+            for (String s : this.message) {
+                if (event.getMessage().getContentRaw().toLowerCase(Locale.ROOT).contains(s.toLowerCase(Locale.ROOT))) {
+                    contains = true;
+                }
             }
-            event.getChannel().sendMessageEmbeds(getEmbed()).queue();
+            if (contains) event.getChannel().sendMessageEmbeds(getEmbed()).queue();
             demolish();
         }
     }

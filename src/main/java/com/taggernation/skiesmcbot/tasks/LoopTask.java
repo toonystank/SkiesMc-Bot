@@ -1,26 +1,25 @@
 package com.taggernation.skiesmcbot.tasks;
 
 import com.taggernation.skiesmcbot.SkiesMCBOT;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import org.bukkit.scheduler.BukkitRunnable;
 
+@SuppressWarnings("unused")
 public class LoopTask extends BukkitRunnable {
 
-    private SkiesMCBOT instance;
     private boolean TaskRunning = false;
-    private TextChannel channelID;
+    private MessageChannel channelID;
     private String message;
     public boolean isTaskRunning() {
         return TaskRunning;
     }
     public LoopTask(SkiesMCBOT instance) {
-        this.instance = instance;
     }
     public void setTaskRunning(boolean taskRunning) {
         TaskRunning = taskRunning;
     }
 
-    public void setChannelID(TextChannel channelID) {
+    public void setChannelID(MessageChannel channelID) {
         this.channelID = channelID;
     }
 

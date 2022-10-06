@@ -1,13 +1,11 @@
 package com.taggernation.skiesmcbot.events;
 
-import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.commands.*;
 import com.taggernation.skiesmcbot.tasks.LoopTask;
 import com.taggernation.skiesmcbot.tasks.TpsMonitor;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
@@ -69,8 +67,8 @@ public class CommandEvent {
     public void onCommand(@NotNull MessageReceivedEvent event) {
         String[] args = event.getMessage().getContentRaw().split(" ");
         switch (args[0]) {
-            case "say" -> new Say().sayCommand(event);
-            case "leaderboard", "status", "top" -> leaderBoard(event);
+            case "!say" -> new Say().sayCommand(event);
+            case "!leaderboard", "!status", "!top" -> leaderBoard(event);
             default -> {
             }
         }

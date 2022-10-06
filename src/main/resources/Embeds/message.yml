@@ -1,7 +1,10 @@
 trigger:
   event:
     type: MESSAGE
-    message: "What is the ip"
+    message:
+      - "What is the ip"
+      - "what is ip"
+      - "can i know the ip"
 title: "**AUTOBOT**"
 author:
   name: null

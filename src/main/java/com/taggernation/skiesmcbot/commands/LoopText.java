@@ -3,7 +3,7 @@ package com.taggernation.skiesmcbot.commands;
 import com.taggernation.skiesmcbot.SkiesMCBOT;
 import com.taggernation.skiesmcbot.tasks.LoopTask;
 import net.dv8tion.jda.api.Permission;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.bukkit.Bukkit;
@@ -21,15 +21,15 @@ public class LoopText {
 
         if (!Objects.requireNonNull(event.getMember()).hasPermission(Permission.MANAGE_SERVER)) return;
         if (args.length > 1) {
-            TextChannel channel;
+            MessageChannel channel;
             String text;
             try {
                 channel = SkiesMCBOT.getJda().getTextChannelById(args[1]);
             } catch (NumberFormatException e) {
-                channel = event.getTextChannel();
+                channel = event.getChannel();
             }
             if (channel == null) {
-                channel = event.getTextChannel();
+                channel = event.getChannel();
 
             }
             text = Objects.requireNonNull(event.getOption("text")).getAsString();

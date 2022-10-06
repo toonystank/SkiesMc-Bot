@@ -23,7 +23,6 @@ public class PlayerInfo {
     }
 
     ConfigManager playerData = SkiesMCBOT.getInstance().getPlayerData();
-    Placeholder placeholder = new Placeholder();
 
     public void sendPlayerInfo() throws IOException, InvalidConfigurationException {
         playerData.reload();
@@ -47,7 +46,7 @@ public class PlayerInfo {
         embedBuilder.addField("K/D Ratio ", formatFields(DataType.KDR, player) + " ", true);
         embedBuilder.addField("Coins ", formatFields(DataType.COINS, player), true);
         embedBuilder.addField("Claim blocks ", formatFields(DataType.CLAIM_BLOCKS, player), true);
-        if (Bukkit.getPlayer(player) != null) {
+        if (Bukkit.getPlayer(player) != null && Objects.requireNonNull(Bukkit.getPlayer(player)).isOnline()) {
             int playerPing = Objects.requireNonNull(Bukkit.getPlayer(player)).getPing();
             embedBuilder.addField("Ping", playerPing + "ms", true);
         }
@@ -76,32 +75,32 @@ public class PlayerInfo {
                 return playerData.getString("players." + playerName + ".kdr");
             case LEVEL:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%clv_player_level%", player);
+                    return Placeholder.replace("%clv_player_level%", player);
                 }
                 return playerData.getString("players." + playerName + ".level");
             case COINS:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%tmtokens_get_tokens_fixed%", player);
+                    return Placeholder.replace("%tmtokens_get_tokens_fixed%", player);
                 }
                 return playerData.getString("players." + playerName + ".coins");
             case CLAIM_BLOCKS:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%lands_land_chunks%`/`%lands_land_chunks_max%", player);
+                    return Placeholder.replace("%lands_land_chunks%`/`%lands_land_chunks_max%", player);
                 }
                 return playerData.getString("players." + playerName + ".claim_blocks");
             case BALANCE:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getMoney().toPlainString(), player);
+                    return Placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getMoney().toPlainString(), player);
                 }
                 return playerData.getString("players." + playerName + ".balance");
             case RANK:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace("%vault_rank%", player);
+                    return Placeholder.replace("%vault_rank%", player);
                 }
                 return playerData.getString("players." + playerName + ".rank");
             case NICK:
                 if (player != null && player.isOnline()) {
-                    return placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getNick(), player);
+                    return Placeholder.replace(SkiesMCBOT.getInstance().essentials.getOfflineUser(playerName).getNick(), player);
                 }
                 return playerData.getString("players." + playerName + ".nick");
             case NAME:
